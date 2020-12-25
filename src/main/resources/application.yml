@@ -1,4 +1,5 @@
 spring:
   data:
     mongodb:
-      host: ""
+      uri: "mongodb+srv://admin:trainingpassword@cluster0.c68gx.mongodb.net/test?retryWrites=true&w=majority"
+
