@@ -1,5 +1,7 @@
 package com.example.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.lang.NonNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,13 +27,13 @@ public class User {
     @NonNull
     private String email;
     @NonNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @NonNull
     private String citizenId;
 //    private String address;
 
     @DBRef
-    @NonNull
     private List<Pet> pets = new ArrayList<>();
     @DBRef
     private List<Product> productList = new ArrayList<>();

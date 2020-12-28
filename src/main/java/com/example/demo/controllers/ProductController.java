@@ -1,32 +1,31 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.Product;
-import com.example.demo.repositories.ProductRepository;
 import com.example.demo.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
     ProductService productService;
 
-    @PostMapping("/product")
+    @PostMapping
     public Product addProduct(@RequestBody Product product) {
         return productService.save(product);
     }
 
-    @GetMapping("/products")
+    @GetMapping
     public List<Product> getAllProduct() {
         return productService.getAllProduct();
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable String id) {
         System.out.println(id);
         try {
