@@ -1,10 +1,11 @@
 package com.example.demo.models;
 
-import com.mongodb.lang.NonNull;
+import com.example.demo.PetType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,25 +16,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Pet {
     @Id
     private String id;
-    @NonNull
-    private String firstname;
-    @NonNull
-    private String lastname;
-    @NonNull
-    private String email;
-    @NonNull
-    private String password;
-    @NonNull
-    private String citizenId;
-//    private String address;
-
-    @DBRef
-    @NonNull
-    private List<Pet> pets = new ArrayList<>();
+    @Indexed(unique = true)
+    private String name;
+    private int age;
     @DBRef
     private List<Product> productList = new ArrayList<>();
-
+    private PetType type = PetType.DOG;
 }

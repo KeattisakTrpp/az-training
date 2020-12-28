@@ -1,7 +1,9 @@
 package com.example.demo.controllers;
 
+import com.example.demo.models.Pet;
 import com.example.demo.models.Product;
 import com.example.demo.models.User;
+import com.example.demo.repositories.PetRepository;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,9 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    PetRepository petRepository;
+
     @GetMapping("/users")
     public List<User> getAllUser() {
         return userService.getAllUser();
@@ -31,10 +36,12 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> addUser(@RequestBody User newUser) {
         try {
+            // prepare for pet
+//            newUser.getPets().forEach(p -> petRepository.save(p));
             User user = userService.addUser(newUser);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -44,17 +51,17 @@ public class UserController {
             User record = userService.login(user.getEmail(), user.getPassword());
             return ResponseEntity.ok(record);
         } catch (RuntimeException e) {
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @PostMapping("/buy/:id")
-    public ResponseEntity<?> buyProduct(@PathVariable String userID, @RequestBody Product product) {
+    @PostMapping("/buy/{userId}")
+    public ResponseEntity<?> buyProduct(@PathVariable String userId, @RequestBody Product product) {
         try {
-            User user = userService.addProduct(userID, product);
+            User user = userService.addProduct(userId, product);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.ok(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 

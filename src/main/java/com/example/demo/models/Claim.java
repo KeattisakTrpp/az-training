@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
@@ -14,13 +13,16 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product {
+public class Claim {
     @Id
     private String id;
-    private String name;
-    private Integer totalBudget;
-    private Integer usedBudget = 0;
-    private Integer price;
-    private Date buyDate = new Date();
+    private Date date;
+    @DBRef
+    private Product product;
+    @DBRef
+    private Pet pet;
+    private int amount;
+//    private String type;
+//    private String status;
 
 }
