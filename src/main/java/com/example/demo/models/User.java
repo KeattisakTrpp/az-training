@@ -31,7 +31,6 @@ public class User {
     private String password;
     @NonNull
     private String citizenId;
-//    private String address;
 
     @DBRef
     private List<Pet> pets = new ArrayList<>();

@@ -1,6 +1,6 @@
 package com.example.demo.models;
 
-import com.example.demo.PetType;
+import com.example.demo.enums.PetType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -19,11 +19,18 @@ public class Pet {
     private String name;
     private int age;
     @DBRef
-    private List<Product> productList = new ArrayList<>();
+    private List<Budget> productList = new ArrayList<>();
     private PetType type = PetType.DOG;
 
     public Pet(String name, int age) {
         this.name = name;
         this.age = age;
     }
+
+    public Pet(String name, int age, PetType type) {
+        this.name = name;
+        this.age = age;
+        this.type = type;
+    }
+
 }

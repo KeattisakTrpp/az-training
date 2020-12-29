@@ -1,17 +1,14 @@
 package com.example.demo.services;
 
-import com.example.demo.models.Pet;
-import com.example.demo.models.Product;
-import com.example.demo.models.User;
-import com.example.demo.repositories.PetRepository;
-import com.example.demo.repositories.ProductRepository;
-import com.example.demo.repositories.UserRepository;
+import com.example.demo.enums.ClaimStatus;
+import com.example.demo.enums.ClaimType;
+import com.example.demo.models.*;
+import com.example.demo.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -26,6 +23,12 @@ public class UserService {
     private PetRepository petRepository;
 
     @Autowired
+    private ClaimRepository claimRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+
+    @Autowired
     private BCryptPasswordEncoder encoder;
 
 
@@ -38,10 +41,13 @@ public class UserService {
         return user;
     }
 
-    public User addUser(User newUser) {
+    public User signup(User newUser) {
         if(userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
-            newUser.setPassword(encoder.encode(newUser.getPassword()));
-            return userRepository.save(newUser);
+            if(userRepository.findByCitizenId(newUser.getCitizenId()).isEmpty()) {
+                newUser.setPassword(encoder.encode(newUser.getPassword()));
+                return userRepository.save(newUser);
+            }
+            throw new RuntimeException("Citizen id is invalid");
         }
         throw new RuntimeException("Email is invalid");
     }
@@ -64,7 +70,8 @@ public class UserService {
         userRepository.save(user);
         for(Pet p: user.getPets()) {
             if(p.getName().equalsIgnoreCase(pet.getName())) {
-                pet.getProductList().add(product);
+                Budget budget = new Budget(product);
+                pet.getProductList().add(budgetRepository.save(budget));
                 petRepository.save(pet);
                 break;
             }
@@ -84,23 +91,29 @@ public class UserService {
         return user.getPets();
     }
 
-    public User claim(String id, int amount, String productId) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        if(user.getProductList().contains(productId)) {
-            for(Product p: user.getProductList()) {
-                if(p.getId().equalsIgnoreCase(productId)) {
-                    int usedBudget = p.getUsedBudget();
-
-                    if(usedBudget + amount <= p.getTotalBudget()) {
-                        p.setUsedBudget(usedBudget + amount);
-                        userRepository.save(user);
-                        return user;
+    public Pet opdClaim(String petId, int amount, String productId, String userId, ClaimType claimType) {
+        Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
+        for(Budget budget: pet.getProductList()) {
+            Product product = budget.getProduct();
+            if(product.getId().equalsIgnoreCase(productId)) {
+                int usedBudget = budget.getUsedBudget().getOpd();
+                if (claimType.getValue().equalsIgnoreCase("ACCIDENT")) {
+                    usedBudget = budget.getUsedBudget().getAccident();
+                    if(usedBudget + amount <= product.getAccident()) {
+                        claimRepository.save(new Claim(userId ,pet, amount , ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                        petRepository.save(pet);
+                        return pet;
                     }
-                    // another case is budget has not enough for full claiming
-                    // waiting for discuss
                 }
+                if(usedBudget + amount <= product.getOpd()) {
+                    claimRepository.save(new Claim(userId, pet, amount, ClaimType.OPD, ClaimStatus.PENDING));
+                    petRepository.save(pet);
+                    return pet;
+                }
+                // another case is budget has not enough for full claiming
+                // waiting for discuss
+//                throw new RuntimeException("Your budget is max");
             }
-            throw new RuntimeException("Your budget is max");
         }
         throw new RuntimeException("Product not found");
     }

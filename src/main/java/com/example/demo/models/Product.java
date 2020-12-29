@@ -18,9 +18,17 @@ public class Product {
     @Id
     private String id;
     private String name;
-    private Integer totalBudget;
-    private Integer usedBudget = 0;
+    private Integer opd;
+    private Integer accident;
     private Integer price;
     private Date buyDate = new Date();
+    private Date expDate;
 
+    public Product(String name, Integer opd, Integer accident, Integer price, Date expDate) {
+        this.name = name;
+        this.opd = opd;
+        this.accident = accident;
+        this.price = price;
+        this.expDate = expDate;
+    }
 }

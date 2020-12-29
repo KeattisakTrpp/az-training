@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.Pet;
-import com.example.demo.models.Product;
 import com.example.demo.models.User;
 import com.example.demo.request.BuyProductRequest;
 import com.example.demo.request.ClaimRequest;
@@ -9,10 +8,8 @@ import com.example.demo.request.RegisterRequest;
 import com.example.demo.repositories.PetRepository;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -42,12 +39,11 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> addUser(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> signup(@RequestBody RegisterRequest request) {
         try {
             Pet pet = request.getPet();
-            System.out.println(petRepository.save(pet));
             request.getUser().getPets().add(petRepository.save(pet));
-            User user = userService.addUser(request.getUser());
+            User user = userService.signup(request.getUser());
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -94,18 +90,13 @@ public class UserController {
         }
     }
 
-    @PostMapping("/{id}/claim")
-    public ResponseEntity<?> claim(@PathVariable String id, @RequestBody ClaimRequest request) {
+    @PostMapping("/{userId}/claim")
+    public ResponseEntity<?> claim(@PathVariable String userId, @RequestBody ClaimRequest request) {
         try {
-            User user = userService.claim(id, request.getAmount(), request.getProductId());
-            return ResponseEntity.ok(user);
+            Pet pet = userService.opdClaim(request.getPetId(), request.getAmount(), request.getProductId(), userId, request.getClaimType());
+            return ResponseEntity.ok(pet);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }
-
-    @GetMapping("/pet/{id}")
-    public ResponseEntity<?> sads(@PathVariable String id) {
-        return ResponseEntity.ok(petRepository.findById(id).get());
     }
 }
