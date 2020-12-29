@@ -2,10 +2,10 @@ package com.example.demo.controllers;
 
 import com.example.demo.models.Pet;
 import com.example.demo.models.User;
+import com.example.demo.repositories.PetRepository;
 import com.example.demo.request.BuyProductRequest;
 import com.example.demo.request.ClaimRequest;
 import com.example.demo.request.RegisterRequest;
-import com.example.demo.repositories.PetRepository;
 import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +31,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable String id) {
         try {
-            User user = userService.getUserById(id);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userService.getUserById(id));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -43,8 +42,7 @@ public class UserController {
         try {
             Pet pet = request.getPet();
             request.getUser().getPets().add(petRepository.save(pet));
-            User user = userService.signup(request.getUser());
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userService.signup(request.getUser()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -53,8 +51,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            User record = userService.login(user.getEmail(), user.getPassword());
-            return ResponseEntity.ok(record);
+            return ResponseEntity.ok(userService.login(user.getEmail(), user.getPassword()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -63,8 +60,7 @@ public class UserController {
     @PostMapping("/{userId}/buy")
     public ResponseEntity<?> buyProduct(@PathVariable String userId, @RequestBody BuyProductRequest request) {
         try {
-            User user = userService.buyProduct(userId, request.getProductId(), request.getPetId());
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userService.buyProduct(userId, request.getProductId(), request.getPetId()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -73,8 +69,7 @@ public class UserController {
     @PostMapping("/{id}/pet")
     public ResponseEntity<?> addPet(@PathVariable String id, @RequestBody Pet pet) {
         try {
-            User user = userService.addPet(id, pet);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userService.addPet(id, pet));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -83,8 +78,7 @@ public class UserController {
     @GetMapping("/{id}/pet")
     public ResponseEntity<?> getPet(@PathVariable String id) {
         try {
-            List<Pet> pets = userService.getPets(id);
-            return ResponseEntity.ok(pets);
+            return ResponseEntity.ok(userService.getPets(id));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -93,8 +87,7 @@ public class UserController {
     @PostMapping("/{userId}/claim")
     public ResponseEntity<?> claim(@PathVariable String userId, @RequestBody ClaimRequest request) {
         try {
-            Pet pet = userService.opdClaim(request.getPetId(), request.getAmount(), request.getProductId(), userId, request.getClaimType());
-            return ResponseEntity.ok(pet);
+            return ResponseEntity.ok(userService.claim(request.getPetId(), request.getAmount(), request.getProductId(), userId, request.getClaimType()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

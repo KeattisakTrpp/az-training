@@ -7,7 +7,6 @@ import com.example.demo.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -37,8 +36,7 @@ public class UserService {
     }
 
     public User getUserById(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        return user;
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User signup(User newUser) {
@@ -91,7 +89,7 @@ public class UserService {
         return user.getPets();
     }
 
-    public Pet opdClaim(String petId, int amount, String productId, String userId, ClaimType claimType) {
+    public Pet claim(String petId, int amount, String productId, String userId, ClaimType claimType) {
         Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
         for(Budget budget: pet.getProductList()) {
             Product product = budget.getProduct();
@@ -99,20 +97,27 @@ public class UserService {
                 int usedBudget = budget.getUsedBudget().getOpd();
                 if (claimType.getValue().equalsIgnoreCase("ACCIDENT")) {
                     usedBudget = budget.getUsedBudget().getAccident();
-                    if(usedBudget + amount <= product.getAccident()) {
-                        claimRepository.save(new Claim(userId ,pet, amount , ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                    if(usedBudget <= product.getAccident()) {
+                        if(usedBudget + amount > product.getAccident()) {
+                            claimRepository.save(new Claim(userId ,pet , product.getAccident() - usedBudget ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                        } else {
+                            claimRepository.save(new Claim(userId ,pet , amount ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                        }
                         petRepository.save(pet);
                         return pet;
                     }
                 }
-                if(usedBudget + amount <= product.getOpd()) {
-                    claimRepository.save(new Claim(userId, pet, amount, ClaimType.OPD, ClaimStatus.PENDING));
+
+                if(usedBudget <= product.getOpd()) {
+                    if(usedBudget + amount > product.getOpd()) {
+                        claimRepository.save(new Claim(userId ,pet , product.getOpd() - usedBudget ,ClaimType.OPD ,ClaimStatus.PENDING));
+                    } else {
+                        claimRepository.save(new Claim(userId ,pet , amount ,ClaimType.OPD ,ClaimStatus.PENDING));
+                    }
                     petRepository.save(pet);
                     return pet;
                 }
-                // another case is budget has not enough for full claiming
-                // waiting for discuss
-//                throw new RuntimeException("Your budget is max");
+                throw new RuntimeException("You have no budget left");
             }
         }
         throw new RuntimeException("Product not found");
