@@ -1,3 +1,5 @@
+## every path require token except signup and login
+
 ## Post Method
 ### User
 `/users/signup` <br>
