@@ -108,10 +108,10 @@ public class UserService {
         return userRepository.findById(id).get();
     }
 
-    public UserModel addPet(String id, Pet pet) {
+    public Pet addPet(String id, Pet pet) {
         UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.getPets().add(pet);
-        return userRepository.save(user);
+        user.getPets().add(petRepository.save(pet));
+        return pet;
     }
 
     public List<Pet> getPets(String id) {
