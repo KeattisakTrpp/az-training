@@ -1,30 +1,31 @@
 package com.example.demo.models;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Date;
 
-@Document(collection = "product")
+
+@Document
 @Data
 @NoArgsConstructor
-public class Product {
+public class ProductDetails {
     @Id
     private String id;
+    @Indexed(unique = true)
     private String name;
     private Integer opd;
     private Integer accident;
     private Integer price;
-    private Date buyDate = new Date();
-    private Date expDate;
+    private int duration; // year
 
-    public Product(String name, Integer opd, Integer accident, Integer price, Date expDate) {
+    public ProductDetails(String name, Integer opd, Integer accident, Integer price, int duration) {
         this.name = name;
         this.opd = opd;
         this.accident = accident;
         this.price = price;
-        this.expDate = expDate;
+        this.duration = duration;
     }
 }

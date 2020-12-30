@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.lang.NonNull;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document
+@Document(collection = "user")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class User {
+public class UserModel {
     @Id
     private String id;
     @NonNull
@@ -34,7 +32,12 @@ public class User {
 
     @DBRef
     private List<Pet> pets = new ArrayList<>();
-    @DBRef
-    private List<Product> productList = new ArrayList<>();
 
+    public UserModel(@NonNull String firstname, @NonNull String lastname, @NonNull String email, @NonNull String password, @NonNull String citizenId) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+        this.citizenId = citizenId;
+    }
 }

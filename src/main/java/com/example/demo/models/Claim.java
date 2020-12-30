@@ -2,7 +2,6 @@ package com.example.demo.models;
 
 import com.example.demo.enums.ClaimStatus;
 import com.example.demo.enums.ClaimType;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -14,7 +13,6 @@ import java.util.Date;
 @Document
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Claim {
     @Id
     private String id;
@@ -28,8 +26,9 @@ public class Claim {
     private ClaimType type;
     private ClaimStatus status;
 
-    public Claim(String userId, Pet pet, int amount, ClaimType type, ClaimStatus status) {
+    public Claim(String userId, Product product, Pet pet, int amount, ClaimType type, ClaimStatus status) {
         this.userId = userId;
+        this.product = product;
         this.pet = pet;
         this.amount = amount;
         this.type = type;

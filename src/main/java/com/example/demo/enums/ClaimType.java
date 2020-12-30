@@ -3,8 +3,8 @@ package com.example.demo.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ClaimType {
-    OPD("Opd"),
-    ACCIDENT("Accident");
+    OPD("OPD"),
+    ACCIDENT("ACCIDENT");
 
     private String type;
 

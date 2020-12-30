@@ -1,12 +1,22 @@
 package com.example.demo.services;
 
+import com.example.demo.models.UsedBudget;
+import com.example.demo.security.UserPayload;
 import com.example.demo.enums.ClaimStatus;
 import com.example.demo.enums.ClaimType;
+import com.example.demo.security.jwt.JwtUtil;
 import com.example.demo.models.*;
 import com.example.demo.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,18 +38,33 @@ public class UserService {
     private BudgetRepository budgetRepository;
 
     @Autowired
+    private PurchaseRepository purchaseRepository;
+
+    @Autowired
+    private ProductDetailsRepository productDetailsRepository;
+
+    @Autowired
     private BCryptPasswordEncoder encoder;
 
+    @Autowired
+    private JwtUtil jwtToken;
 
-    public List<User> getAllUser() {
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private MyUserDetailsService userDetailsService;
+
+
+    public List<UserModel> getAllUser() {
         return userRepository.findAll();
     }
 
-    public User getUserById(String id) {
+    public UserModel getUserById(String id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User signup(User newUser) {
+    public UserModel signup(UserModel newUser) {
         if(userRepository.findByEmail(newUser.getEmail()).isEmpty()) {
             if(userRepository.findByCitizenId(newUser.getCitizenId()).isEmpty()) {
                 newUser.setPassword(encoder.encode(newUser.getPassword()));
@@ -50,76 +75,87 @@ public class UserService {
         throw new RuntimeException("Email is invalid");
     }
 
-    public User login(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-
-        if(encoder.matches(password, user.getPassword())) {
-            return user;
+    public UserPayload login(String email, String password) {
+        UserModel user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), password));
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Username or password incorrect");
         }
-        throw new RuntimeException("Username or password incorrect");
 
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        final String jwt = jwtToken.generateToken(userDetails);
+
+        return new UserPayload(user, jwt);
     }
 
-    public User buyProduct(String id, String productId, String petId) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+    public UserModel buyProduct(String id, String productId, String petId) {
+        UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        ProductDetails product = productDetailsRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
         Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
-        user.getProductList().add(product);
-        userRepository.save(user);
-        for(Pet p: user.getPets()) {
-            if(p.getName().equalsIgnoreCase(pet.getName())) {
-                Budget budget = new Budget(product);
-                pet.getProductList().add(budgetRepository.save(budget));
-                petRepository.save(pet);
-                break;
-            }
-        }
-        return userRepository.findById(id).get();
+        purchaseRepository.save(new Purchase(user.getId(), product));
+        // set product expiration
+        Date today = new Date();
+        Calendar expDate = Calendar.getInstance();
+        expDate.setTime(today);
+        expDate.add(Calendar.YEAR, product.getDuration());
 
+        Product purchasedProduct = new Product(product.getName(), product.getOpd(), product.getAccident(), product.getPrice(), expDate.getTime());
+        Budget budget = new Budget(productRepository.save(purchasedProduct));
+        budget.setUsedBudget(new UsedBudget());
+        pet.getProductList().add(budgetRepository.save(budget));
+        petRepository.save(pet);
+        return userRepository.findById(id).get();
     }
 
-    public User addPet(String id, Pet pet) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    public UserModel addPet(String id, Pet pet) {
+        UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.getPets().add(pet);
         return userRepository.save(user);
     }
 
     public List<Pet> getPets(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         return user.getPets();
     }
 
-    public Pet claim(String petId, int amount, String productId, String userId, ClaimType claimType) {
+    public Pet claim(String petId, int amount, String budgetId, String userId, ClaimType claimType) {
         Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
-        for(Budget budget: pet.getProductList()) {
-            Product product = budget.getProduct();
-            if(product.getId().equalsIgnoreCase(productId)) {
-                int usedBudget = budget.getUsedBudget().getOpd();
-                if (claimType.getValue().equalsIgnoreCase("ACCIDENT")) {
-                    usedBudget = budget.getUsedBudget().getAccident();
-                    if(usedBudget <= product.getAccident()) {
-                        if(usedBudget + amount > product.getAccident()) {
-                            claimRepository.save(new Claim(userId ,pet , product.getAccident() - usedBudget ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
-                        } else {
-                            claimRepository.save(new Claim(userId ,pet , amount ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
-                        }
-                        petRepository.save(pet);
-                        return pet;
-                    }
-                }
+        Budget budget = budgetRepository.findById(budgetId).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = budget.getProduct();
+            int usedBudget = budget.getUsedBudget().getOpd();
 
-                if(usedBudget <= product.getOpd()) {
-                    if(usedBudget + amount > product.getOpd()) {
-                        claimRepository.save(new Claim(userId ,pet , product.getOpd() - usedBudget ,ClaimType.OPD ,ClaimStatus.PENDING));
+            if (claimType.getValue().equalsIgnoreCase("ACCIDENT")) {
+                usedBudget = budget.getUsedBudget().getAccident();
+                if(usedBudget < product.getAccident()) {
+                    if(usedBudget + amount > product.getAccident()) {
+                        claimRepository.save(new Claim(userId , product, pet , product.getAccident() - usedBudget ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                        budget.getUsedBudget().setAccident(budget.getProduct().getAccident());
                     } else {
-                        claimRepository.save(new Claim(userId ,pet , amount ,ClaimType.OPD ,ClaimStatus.PENDING));
+                        claimRepository.save(new Claim(userId ,product, pet , amount ,ClaimType.ACCIDENT ,ClaimStatus.PENDING));
+                        budget.getUsedBudget().setAccident(budget.getUsedBudget().getAccident() + amount);
                     }
+                    budgetRepository.save(budget);
                     petRepository.save(pet);
-                    return pet;
+                    return petRepository.findById(pet.getId()).get();
                 }
-                throw new RuntimeException("You have no budget left");
+                throw new RuntimeException("You have no accident budget left");
             }
-        }
-        throw new RuntimeException("Product not found");
+
+            if(usedBudget < product.getOpd()) {
+                if(usedBudget + amount > product.getOpd()) {
+                    claimRepository.save(new Claim(userId , product, pet , product.getOpd() - usedBudget ,ClaimType.OPD ,ClaimStatus.PENDING));
+                    budget.getUsedBudget().setOpd(budget.getUsedBudget().getOpd());
+                    System.out.println("OPD OVER");
+                } else {
+                    claimRepository.save(new Claim(userId , product, pet , amount ,ClaimType.OPD ,ClaimStatus.PENDING));
+                    budget.getUsedBudget().setOpd(budget.getUsedBudget().getOpd() + amount);
+                    System.out.println("OPD LESS");
+                }
+                budgetRepository.save(budget);
+                petRepository.save(pet);
+                return petRepository.findById(pet.getId()).get();
+            }
+            throw new RuntimeException("You have no opd budget left");
     }
 }

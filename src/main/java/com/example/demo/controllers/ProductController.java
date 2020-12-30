@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.models.Product;
-import com.example.demo.services.ProductService;
+import com.example.demo.models.ProductDetails;
+import com.example.demo.repositories.ProductDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,23 +13,25 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    ProductDetailsRepository productDetailsRepository;
 
     @PostMapping
-    public Product addProduct(@RequestBody Product product) {
-        return productService.save(product);
+    public ProductDetails addProduct(@RequestBody ProductDetails product) {
+        if(productDetailsRepository.findByName(product.getName()).isPresent()){
+           throw new RuntimeException("Product is already exist");
+        }
+        return productDetailsRepository.save(product);
     }
 
     @GetMapping
-    public List<Product> getAllProduct() {
-        return productService.getAllProduct();
+    public List<ProductDetails> getAllProduct() {
+        return productDetailsRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable String id) {
-        System.out.println(id);
         try {
-            return ResponseEntity.ok(productService.getProductById(id));
+            return ResponseEntity.ok(productDetailsRepository.findById(id).orElseThrow(() -> new RuntimeException("Id not found")));
         }
         catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

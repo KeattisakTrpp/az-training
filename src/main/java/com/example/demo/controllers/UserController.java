@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.Pet;
-import com.example.demo.models.User;
+import com.example.demo.models.UserModel;
 import com.example.demo.repositories.PetRepository;
 import com.example.demo.request.BuyProductRequest;
 import com.example.demo.request.ClaimRequest;
@@ -23,8 +23,8 @@ public class UserController {
     @Autowired
     PetRepository petRepository;
 
-    @GetMapping("/")
-    public List<User> getAllUser() {
+    @GetMapping()
+    public List<UserModel> getAllUser() {
         return userService.getAllUser();
     }
 
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody UserModel user) {
         try {
             return ResponseEntity.ok(userService.login(user.getEmail(), user.getPassword()));
         } catch (RuntimeException e) {
@@ -87,7 +87,7 @@ public class UserController {
     @PostMapping("/{userId}/claim")
     public ResponseEntity<?> claim(@PathVariable String userId, @RequestBody ClaimRequest request) {
         try {
-            return ResponseEntity.ok(userService.claim(request.getPetId(), request.getAmount(), request.getProductId(), userId, request.getClaimType()));
+            return ResponseEntity.ok(userService.claim(request.getPetId(), request.getAmount(), request.getBudgetId(), userId, request.getClaimType()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

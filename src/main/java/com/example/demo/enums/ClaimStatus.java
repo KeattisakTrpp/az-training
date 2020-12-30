@@ -3,8 +3,8 @@ package com.example.demo.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ClaimStatus {
-    APPROVED("Approved"),
-    PENDING("Pending");
+    APPROVED("APPROVED"),
+    PENDING("PENDING");
 
     private String type;
 

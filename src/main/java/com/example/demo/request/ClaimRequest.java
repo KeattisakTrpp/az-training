@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClaimRequest {
     private int amount;
-    private String productId;
+    private String budgetId;
     private String petId;
     private ClaimType claimType;
 }

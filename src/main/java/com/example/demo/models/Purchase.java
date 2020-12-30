@@ -6,21 +6,21 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Document
 @Data
 @NoArgsConstructor
-public class Budget {
+public class Purchase {
     @Id
     private String id;
+    private String userId;
     @DBRef
-    private Product product;
-    private UsedBudget usedBudget;
+    private ProductDetails productDetails;
+    private Date purchaseDate = new Date();
 
-    public Budget(UsedBudget usedBudget) {
-        this.usedBudget = usedBudget;
-    }
-
-    public Budget(Product product) {
-        this.product = product;
+    public Purchase(String userId, ProductDetails productDetails) {
+        this.userId = userId;
+        this.productDetails = productDetails;
     }
 }

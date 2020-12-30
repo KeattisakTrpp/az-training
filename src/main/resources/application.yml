@@ -2,4 +2,7 @@ spring:
   data:
     mongodb:
       uri: "mongodb+srv://admin:trainingpassword@cluster0.c68gx.mongodb.net/test?retryWrites=true&w=majority"
-
+az:
+  app:
+    jwtSecret: "F321BFBD94FB41BABDB53DA9F6E2A133DE9BA673899EA17528B811E2E6"
+    jwtExp: 3600000

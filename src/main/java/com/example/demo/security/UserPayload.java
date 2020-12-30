@@ -1,6 +1,5 @@
-package com.example.demo.request;
+package com.example.demo.security;
 
-import com.example.demo.models.Pet;
 import com.example.demo.models.UserModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
+public class UserPayload {
     private UserModel user;
-    private Pet pet;
+    private String token;
 }
