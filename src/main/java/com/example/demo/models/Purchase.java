@@ -18,9 +18,12 @@ public class Purchase {
     @DBRef
     private ProductDetails productDetails;
     private Date purchaseDate = new Date();
+    @DBRef
+    private Pet pet;
 
-    public Purchase(String userId, ProductDetails productDetails) {
+    public Purchase(String userId, ProductDetails productDetails, Pet pet) {
         this.userId = userId;
         this.productDetails = productDetails;
+        this.pet = pet;
     }
 }

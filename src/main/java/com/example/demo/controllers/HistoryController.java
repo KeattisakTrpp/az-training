@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -23,11 +20,6 @@ public class HistoryController {
 
     @Autowired
     private PurchaseRepository purchaseRepository;
-
-    @GetMapping()
-    public String asd() {
-        return "Asdasdas";
-    }
 
     @GetMapping("{userId}/claim")
     public List<Claim> getAllClaim(@PathVariable String userId) {

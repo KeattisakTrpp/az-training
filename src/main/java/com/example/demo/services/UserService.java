@@ -89,21 +89,23 @@ public class UserService {
         return new UserPayload(user, jwt);
     }
 
-    public UserModel buyProduct(String id, String productId, String petId) {
+    public UserModel buyProduct(String id, List<String> productIdList, String petId) {
         UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        ProductDetails product = productDetailsRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
         Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
-        purchaseRepository.save(new Purchase(user.getId(), product));
         // set product expiration
         Date today = new Date();
         Calendar expDate = Calendar.getInstance();
         expDate.setTime(today);
-        expDate.add(Calendar.YEAR, product.getDuration());
+        for(String productId: productIdList ) {
+            ProductDetails product = productDetailsRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+            expDate.add(Calendar.YEAR, product.getDuration());
+            purchaseRepository.save(new Purchase(user.getId(), product, pet));
 
-        Product purchasedProduct = new Product(product.getName(), product.getOpd(), product.getAccident(), product.getPrice(), expDate.getTime());
-        Budget budget = new Budget(productRepository.save(purchasedProduct));
-        budget.setUsedBudget(new UsedBudget());
-        pet.getProductList().add(budgetRepository.save(budget));
+            Product purchasedProduct = new Product(product.getName(), product.getOpd(), product.getAccident(), product.getPrice(), expDate.getTime());
+            Budget budget = new Budget(productRepository.save(purchasedProduct));
+            budget.setUsedBudget(new UsedBudget());
+            pet.getProductList().add(budgetRepository.save(budget));
+        }
         petRepository.save(pet);
         return userRepository.findById(id).get();
     }
@@ -111,6 +113,7 @@ public class UserService {
     public Pet addPet(String id, Pet pet) {
         UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.getPets().add(petRepository.save(pet));
+        userRepository.save(user);
         return pet;
     }
 

@@ -60,7 +60,7 @@ public class UserController {
     @PostMapping("/{userId}/buy")
     public ResponseEntity<?> buyProduct(@PathVariable String userId, @RequestBody BuyProductRequest request) {
         try {
-            return ResponseEntity.ok(userService.buyProduct(userId, request.getProductId(), request.getPetId()));
+            return ResponseEntity.ok(userService.buyProduct(userId, request.getProductIdList() , request.getPetId()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

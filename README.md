@@ -1,4 +1,4 @@
-## every path require token except signup and login
+## every path required token except signup, login and get products
 
 ## Post Method
 ### User
@@ -36,7 +36,7 @@
 > example request body: 
 ```
 {
-  "productId": "",
+  "productId": [""],
   "petId": ""
 }
 ```
@@ -113,7 +113,7 @@
 ]
 ```
 ## Product
-`/products` get all products <br>
+`/products/get` get all products <br>
 **return** [Object]
 > response data : 
 ```
@@ -130,7 +130,7 @@
 ```
 ## History
 
-`/history/{userId}/purchase` get history pruchase from userId <br>
+`/history/{userId}/purchase` get history purchase from userId <br>
 **return** [Object]
 > response data : 
 ```
