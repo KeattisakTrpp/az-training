@@ -12,7 +12,9 @@
 		"lastname": "",
 		"email": "",
 		"citizenId": "",
-		"password": ""
+		"password": "",
+        "address": "",
+        "phone": ""
 	},
 	"pet": {
 		"name": "",
@@ -36,8 +38,15 @@
 > example request body: 
 ```
 {
-  "productId": [""],
-  "petId": ""
+	"cart": [
+		{
+			"productId": "",
+			"petId": ""
+		}, {
+			"productId": "",
+			"petId": ""
+		}
+	]
 }
 ```
 
@@ -58,9 +67,11 @@
 > example request body: 
 ```
 {
-	"name": 80000,
-	"age": 5,
-	"type": "", // optional (DOG, CAT) default is DOG
+    "name": "ong",
+    "age": 1,
+    "type": "", // optional (DOG, CAT) default is DOG
+    "breed": "",
+    "gender": "" (MALE, FEMALE) default is MALE
 }
 ```
 ### Product
@@ -84,11 +95,13 @@
 [
   {
     "user": {
-      "firstname": "",
-      "lastname": "",
-      "email": "",
-      "citizenId": "",
-      "password": ""
+        "firstname": "",
+        "lastname": "",
+        "email": "",
+        "citizenId": "",
+        "password": "",
+        "address": "",
+        "phone": ""
     },
     "pet": {
       "name": "",
@@ -108,7 +121,9 @@
     "name": "ong",
     "age": 1,
     "productList": [],
-    "type": "DOG"
+    "type": "DOG",
+    "breed": "",
+    "gender": "" (MALE, FEMALE)
   }
 ]
 ```

@@ -29,15 +29,29 @@ public class UserModel {
     private String password;
     @NonNull
     private String citizenId;
+    private String address = "";
+    @NonNull
+    private String phone;
 
     @DBRef
     private List<Pet> pets = new ArrayList<>();
 
-    public UserModel(@NonNull String firstname, @NonNull String lastname, @NonNull String email, @NonNull String password, @NonNull String citizenId) {
+    public UserModel(@NonNull String firstname, @NonNull String lastname, @NonNull String email, @NonNull String password, @NonNull String citizenId, @NonNull String phone) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.citizenId = citizenId;
+        this.phone = phone;
+    }
+
+    public UserModel(@NonNull String firstname, @NonNull String lastname, @NonNull String email, @NonNull String password, @NonNull String citizenId, String address, @NonNull String phone) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+        this.citizenId = citizenId;
+        this.address = address;
+        this.phone = phone;
     }
 }
