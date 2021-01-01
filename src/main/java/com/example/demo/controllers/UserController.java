@@ -3,7 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.models.Pet;
 import com.example.demo.models.UserModel;
 import com.example.demo.repositories.PetRepository;
-import com.example.demo.request.BuyProductRequest;
+import com.example.demo.request.CartRequest;
 import com.example.demo.request.ClaimRequest;
 import com.example.demo.request.RegisterRequest;
 import com.example.demo.services.UserService;
@@ -58,9 +58,9 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/buy")
-    public ResponseEntity<?> buyProduct(@PathVariable String userId, @RequestBody BuyProductRequest request) {
+    public ResponseEntity<?> buyProduct(@PathVariable String userId, @RequestBody CartRequest request) {
         try {
-            return ResponseEntity.ok(userService.buyProduct(userId, request.getProductIdList() , request.getPetId()));
+            return ResponseEntity.ok(userService.buyProduct(userId, request.getCart()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

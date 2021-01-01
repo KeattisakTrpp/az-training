@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
 import com.example.demo.models.UsedBudget;
+import com.example.demo.request.BuyProduct;
+import com.example.demo.request.CartRequest;
 import com.example.demo.security.UserPayload;
 import com.example.demo.enums.ClaimStatus;
 import com.example.demo.enums.ClaimType;
@@ -89,15 +91,15 @@ public class UserService {
         return new UserPayload(user, jwt);
     }
 
-    public UserModel buyProduct(String id, List<String> productIdList, String petId) {
+    public UserModel buyProduct(String id, List<BuyProduct> cart) {
         UserModel user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        Pet pet = petRepository.findById(petId).orElseThrow(() -> new RuntimeException("Pet not found"));
         // set product expiration
         Date today = new Date();
         Calendar expDate = Calendar.getInstance();
         expDate.setTime(today);
-        for(String productId: productIdList ) {
-            ProductDetails product = productDetailsRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+        for(BuyProduct buyProduct: cart ) {
+            Pet pet = petRepository.findById(buyProduct.getPetId()).orElseThrow(() -> new RuntimeException("Pet not found"));
+            ProductDetails product = productDetailsRepository.findById(buyProduct.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
             expDate.add(Calendar.YEAR, product.getDuration());
             purchaseRepository.save(new Purchase(user.getId(), product, pet));
 
@@ -105,8 +107,8 @@ public class UserService {
             Budget budget = new Budget(productRepository.save(purchasedProduct));
             budget.setUsedBudget(new UsedBudget());
             pet.getProductList().add(budgetRepository.save(budget));
+            petRepository.save(pet);
         }
-        petRepository.save(pet);
         return userRepository.findById(id).get();
     }
 

@@ -20,12 +20,14 @@ public class ProductDetails {
     private Integer accident;
     private Integer price;
     private int duration; // year
+    private String description;
 
-    public ProductDetails(String name, Integer opd, Integer accident, Integer price, int duration) {
+    public ProductDetails(String name, Integer opd, Integer accident, Integer price, int duration, String description) {
         this.name = name;
         this.opd = opd;
         this.accident = accident;
         this.price = price;
         this.duration = duration;
+        this.description = description;
     }
 }
