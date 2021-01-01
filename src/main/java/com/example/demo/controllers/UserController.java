@@ -92,4 +92,9 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("{userId}/products")
+    public ResponseEntity<?> getUserProducts(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getProductByUserId(userId));
+    }
 }

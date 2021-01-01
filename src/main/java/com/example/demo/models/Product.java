@@ -18,12 +18,14 @@ public class Product {
     private Integer price;
     private Date buyDate = new Date();
     private Date expDate;
+    private String userId;
 
-    public Product(String name, Integer opd, Integer accident, Integer price, Date expDate) {
+    public Product(String name, Integer opd, Integer accident, Integer price, Date expDate, String userId) {
         this.name = name;
         this.opd = opd;
         this.accident = accident;
         this.price = price;
         this.expDate = expDate;
+        this.userId = userId;
     }
 }

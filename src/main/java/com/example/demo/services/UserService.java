@@ -103,7 +103,7 @@ public class UserService {
             expDate.add(Calendar.YEAR, product.getDuration());
             purchaseRepository.save(new Purchase(user.getId(), product, pet));
 
-            Product purchasedProduct = new Product(product.getName(), product.getOpd(), product.getAccident(), product.getPrice(), expDate.getTime());
+            Product purchasedProduct = new Product(product.getName(), product.getOpd(), product.getAccident(), product.getPrice(), expDate.getTime(), user.getId());
             Budget budget = new Budget(productRepository.save(purchasedProduct));
             budget.setUsedBudget(new UsedBudget());
             pet.getProductList().add(budgetRepository.save(budget));
@@ -162,5 +162,9 @@ public class UserService {
                 return petRepository.findById(pet.getId()).get();
             }
             throw new RuntimeException("You have no opd budget left");
+    }
+
+    public List<Product> getProductByUserId(String id) {
+        return productRepository.findProductByUserId(id);
     }
 }
