@@ -175,7 +175,7 @@ public class UserService {
             expDate.setTime(p.getPurchaseDate());
             expDate.add(Calendar.YEAR, p.getProductDetails().getDuration());
             if(p.getPurchaseDate().before(expDate.getTime())) {
-                result.add(new ActiveProduct(p.getProductDetails(), p.getPurchaseDate(), p.getPet().getName()));
+                result.add(new ActiveProduct(p.getProductDetails(), p.getPurchaseDate(), expDate.getTime(), p.getPet().getName()));
             }
         }
         return result;

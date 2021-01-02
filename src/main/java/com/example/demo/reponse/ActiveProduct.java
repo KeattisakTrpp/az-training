@@ -13,5 +13,6 @@ import java.util.Date;
 public class ActiveProduct {
     private ProductDetails productDetails;
     private Date purchaseDate;
+    private Date expDate;
     private String petName;
 }

@@ -127,6 +127,28 @@
   }
 ]
 ```
+
+`/users/{userId}/products` get active products from userId <br>
+**return** [Object]
+> response data : 
+```
+[
+  {
+    "productDetails": {
+      "id": "5fed6d500625d219b135b332",
+      "name": "Dog Insurance",
+      "opd": 2000,
+      "accident": 10000,
+      "price": 1500,
+      "duration": 2,
+      "description": "this is Dog Insurance"
+    },
+    "purchaseDate": "2021-01-01T18:00:53.432+00:00",
+    "expDate": "2023-01-01T18:00:53.432+00:00",
+    "petName": "ong"
+  }
+]
+```
 ## Product
 `/products/get` get all products <br>
 **return** [Object]
