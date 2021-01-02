@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.models.UsedBudget;
+import com.example.demo.reponse.ActiveProduct;
 import com.example.demo.request.BuyProduct;
 import com.example.demo.request.CartRequest;
 import com.example.demo.security.UserPayload;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -164,7 +166,18 @@ public class UserService {
             throw new RuntimeException("You have no opd budget left");
     }
 
-    public List<Product> getProductByUserId(String id) {
-        return productRepository.findProductByUserId(id);
+    public List<ActiveProduct> getProductByUserId(String id) {
+        List<Purchase> purchaseList = purchaseRepository.findAllByUserId(id);
+        List<ActiveProduct> result = new ArrayList<>();
+        // get active product
+        Calendar expDate = Calendar.getInstance();
+        for(Purchase p: purchaseList) {
+            expDate.setTime(p.getPurchaseDate());
+            expDate.add(Calendar.YEAR, p.getProductDetails().getDuration());
+            if(p.getPurchaseDate().before(expDate.getTime())) {
+                result.add(new ActiveProduct(p.getProductDetails(), p.getPurchaseDate(), p.getPet().getName()));
+            }
+        }
+        return result;
     }
 }
